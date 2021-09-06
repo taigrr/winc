@@ -8,7 +8,7 @@ package winc
 import (
 	"fmt"
 
-	"github.com/tadvi/winc/w32"
+	"github.com/leaanthony/winc/w32"
 )
 
 type Canvas struct {

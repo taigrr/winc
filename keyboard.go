@@ -8,7 +8,7 @@ package winc
 import (
 	"bytes"
 
-	"github.com/tadvi/winc/w32"
+	"github.com/leaanthony/winc/w32"
 )
 
 type Key uint16
