@@ -194,6 +194,10 @@ func (fm *Form) UnFullscreen() {
 	fm.isFullscreen = false
 }
 
+func (fm *Form) IsFullScreen() bool {
+	return fm.isFullscreen
+}
+
 // IconType: 1 - ICON_BIG; 0 - ICON_SMALL
 func (fm *Form) SetIcon(iconType int, icon *Icon) {
 	if iconType > 1 {
@@ -237,8 +241,6 @@ func (fm *Form) WndProc(msg uint32, wparam, lparam uintptr) uintptr {
 				action.onClick.Fire(NewEvent(fm, nil))
 			}
 		}
-	case w32.WM_APP:
-		println("here!")
 	case w32.WM_KEYDOWN:
 		// Accelerator support.
 		key := Key(wparam)
