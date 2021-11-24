@@ -176,6 +176,8 @@ func (cba *ControlBase) clampSize(width, height int) (int, int) {
 func (cba *ControlBase) SetSize(width, height int) {
 	x, y := cba.Pos()
 	width, height = cba.clampSize(width, height)
+	width, height = cba.scaleWithWindowDPI(width, height)
+
 	w32.MoveWindow(cba.hwnd, x, y, width, height, true)
 }
 
@@ -442,4 +444,15 @@ func (cba *ControlBase) OnSize() *EventManager {
 
 func (cba *ControlBase) OnKeyUp() *EventManager {
 	return &cba.onKeyUp
+}
+
+func (cba *ControlBase) scaleWithWindowDPI(width, height int) (int, int) {
+	dpix, dpiy := cba.GetWindowDPI()
+
+	DPIScaleX := dpix / 96.0
+	DPIScaleY := dpiy / 96.0
+
+	width *= int(DPIScaleX)
+	height *= int(DPIScaleY)
+	return width, height
 }

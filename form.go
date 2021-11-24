@@ -6,8 +6,9 @@
 package winc
 
 import (
-	"github.com/leaanthony/winc/w32"
 	"unsafe"
+
+	"github.com/leaanthony/winc/w32"
 )
 
 type LayoutManager interface {
@@ -278,21 +279,19 @@ func (fm *Form) WndProc(msg uint32, wparam, lparam uintptr) uintptr {
 		}
 	case w32.WM_GETMINMAXINFO:
 		if fm.minWidth != 0 || fm.maxWidth != 0 || fm.minHeight != 0 || fm.maxHeight != 0 {
-			dpix, dpiy := fm.GetWindowDPI()
-
-			DPIScaleX := dpix / 96.0
-			DPIScaleY := dpiy / 96.0
-
 			mmi := (*w32.MINMAXINFO)(unsafe.Pointer(lparam))
 			if fm.minWidth > 0 && fm.minHeight > 0 {
-				mmi.PtMinTrackSize.X = int32(fm.minWidth * int(DPIScaleX))
-				mmi.PtMinTrackSize.Y = int32(fm.minHeight * int(DPIScaleY))
+				width, height := fm.scaleWithWindowDPI(fm.minWidth, fm.minHeight)
+
+				mmi.PtMinTrackSize.X = int32(width)
+				mmi.PtMinTrackSize.Y = int32(height)
 			}
 			if fm.maxWidth > 0 && fm.maxHeight > 0 {
-				mmi.PtMaxSize.X = int32(fm.maxWidth * int(DPIScaleX))
-				mmi.PtMaxSize.Y = int32(fm.maxHeight * int(DPIScaleY))
-				mmi.PtMaxTrackSize.X = int32(fm.maxWidth * int(DPIScaleX))
-				mmi.PtMaxTrackSize.Y = int32(fm.maxHeight * int(DPIScaleY))
+				width, height := fm.scaleWithWindowDPI(fm.maxWidth, fm.maxHeight)
+				mmi.PtMaxSize.X = int32(width)
+				mmi.PtMaxSize.Y = int32(height)
+				mmi.PtMaxTrackSize.X = int32(width)
+				mmi.PtMaxTrackSize.Y = int32(height)
 			}
 			return 0
 		}
