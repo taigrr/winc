@@ -65,6 +65,7 @@ var (
 	procMessageBox                    = moduser32.NewProc("MessageBoxW")
 	procGetSystemMetrics              = moduser32.NewProc("GetSystemMetrics")
 	procPostThreadMessageW            = moduser32.NewProc("PostThreadMessageW")
+	procRegisterWindowMessageA        = moduser32.NewProc("RegisterWindowMessageA")
 	//procSysColorBrush            = moduser32.NewProc("GetSysColorBrush")
 	procCopyRect          = moduser32.NewProc("CopyRect")
 	procEqualRect         = moduser32.NewProc("EqualRect")
@@ -209,6 +210,13 @@ func UpdateWindow(hwnd HWND) bool {
 
 func PostThreadMessage(threadID HANDLE, msg int, wp, lp uintptr) {
 	procPostThreadMessageW.Call(threadID, uintptr(msg), wp, lp)
+}
+
+func RegisterWindowMessage(name *uint16) uint32 {
+	ret, _, _ := procRegisterWindowMessageA.Call(
+		uintptr(unsafe.Pointer(name)))
+
+	return uint32(ret)
 }
 
 func PostMainThreadMessage(msg uint32, wp, lp uintptr) bool {

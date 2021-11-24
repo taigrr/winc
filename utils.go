@@ -97,6 +97,16 @@ func RegisterClass(className string, wndproc uintptr) {
 	}
 }
 
+func RegisterWindowMessage(name string) uint32 {
+	n := syscall.StringToUTF16Ptr(name)
+
+	ret := w32.RegisterWindowMessage(n)
+	if ret == 0 {
+		panic(syscall.GetLastError())
+	}
+	return ret
+}
+
 func getMonitorInfo(hwnd w32.HWND) *w32.MONITORINFO {
 	currentMonitor := w32.MonitorFromWindow(hwnd, w32.MONITOR_DEFAULTTONEAREST)
 	var info w32.MONITORINFO
