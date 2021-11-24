@@ -7,6 +7,7 @@ package winc
 
 import (
 	"fmt"
+	"sync"
 	"syscall"
 	"unsafe"
 
@@ -56,6 +57,9 @@ type ControlBase struct {
 	// Paint events
 	onPaint EventManager
 	onSize  EventManager
+
+	m         sync.Mutex
+	dispatchq []func()
 }
 
 // initControl is called by controls: edit, button, treeview, listview, and so on.
@@ -357,9 +361,20 @@ func (cba *ControlBase) InvokeRequired() bool {
 	}
 
 	windowThreadId, _ := w32.GetWindowThreadProcessId(cba.hwnd)
-	currentThreadId := w32.GetCurrentThread()
+	currentThreadId := w32.GetCurrentThreadId()
 
 	return windowThreadId != currentThreadId
+}
+
+func (cba *ControlBase) Invoke(f func()) {
+	if !cba.InvokeRequired() {
+		f()
+	} else {
+		cba.m.Lock()
+		cba.dispatchq = append(cba.dispatchq, f)
+		cba.m.Unlock()
+		w32.PostMessage(cba.hwnd, wmInvokeCallback, 0, 0)
+	}
 }
 
 func (cba *ControlBase) PreTranslateMessage(msg *w32.MSG) bool {
@@ -455,4 +470,18 @@ func (cba *ControlBase) scaleWithWindowDPI(width, height int) (int, int) {
 	width *= int(DPIScaleX)
 	height *= int(DPIScaleY)
 	return width, height
+}
+
+func (cba *ControlBase) invokeCallbacks() {
+	if cba.InvokeRequired() {
+		panic("InvokeCallbacks must always be called on the window thread")
+	}
+
+	cba.m.Lock()
+	q := append([]func(){}, cba.dispatchq...)
+	cba.dispatchq = []func(){}
+	cba.m.Unlock()
+	for _, v := range q {
+		v()
+	}
 }

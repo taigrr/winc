@@ -11,6 +11,12 @@ import (
 	"github.com/leaanthony/winc/w32"
 )
 
+var wmInvokeCallback uint32
+
+func init() {
+	wmInvokeCallback = RegisterWindowMessage("WincV0.InvokeCallback")
+}
+
 func genPoint(p uintptr) (x, y int) {
 	x = int(w32.LOWORD(uint32(p)))
 	y = int(w32.HIWORD(uint32(p)))
@@ -136,7 +142,8 @@ func generalWndProc(hwnd w32.HWND, msg uint32, wparam, lparam uintptr) uintptr {
 		case w32.WM_SIZE:
 			x, y := genPoint(lparam)
 			controller.OnSize().Fire(NewEvent(controller, &SizeEventData{uint(wparam), x, y}))
-
+		case wmInvokeCallback:
+			controller.invokeCallbacks()
 		}
 		return ret
 	}

@@ -41,6 +41,7 @@ type Controller interface {
 	Font() *Font
 	SetFont(font *Font)
 	InvokeRequired() bool
+	Invoke(func())
 	PreTranslateMessage(msg *w32.MSG) bool
 	WndProc(msg uint32, wparam, lparam uintptr) uintptr
 
@@ -77,4 +78,6 @@ type Controller interface {
 	//Paint events
 	OnPaint() *EventManager
 	OnSize() *EventManager
+
+	invokeCallbacks()
 }
