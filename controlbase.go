@@ -7,6 +7,7 @@ package winc
 
 import (
 	"fmt"
+	"runtime"
 	"sync"
 	"syscall"
 	"unsafe"
@@ -367,14 +368,14 @@ func (cba *ControlBase) InvokeRequired() bool {
 }
 
 func (cba *ControlBase) Invoke(f func()) {
-	if !cba.InvokeRequired() {
-		f()
-	} else {
-		cba.m.Lock()
-		cba.dispatchq = append(cba.dispatchq, f)
-		cba.m.Unlock()
-		w32.PostMessage(cba.hwnd, wmInvokeCallback, 0, 0)
+	if cba.tryInvokeOnCurrentGoRoutine(f) {
+		return
 	}
+
+	cba.m.Lock()
+	cba.dispatchq = append(cba.dispatchq, f)
+	cba.m.Unlock()
+	w32.PostMessage(cba.hwnd, wmInvokeCallback, 0, 0)
 }
 
 func (cba *ControlBase) PreTranslateMessage(msg *w32.MSG) bool {
@@ -472,7 +473,21 @@ func (cba *ControlBase) scaleWithWindowDPI(width, height int) (int, int) {
 	return width, height
 }
 
+func (cba *ControlBase) tryInvokeOnCurrentGoRoutine(f func()) bool {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+
+	if cba.InvokeRequired() {
+		return false
+	}
+	f()
+	return true
+}
+
 func (cba *ControlBase) invokeCallbacks() {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+
 	if cba.InvokeRequired() {
 		panic("InvokeCallbacks must always be called on the window thread")
 	}
