@@ -7,11 +7,11 @@ package winc
 
 import (
 	"fmt"
-	"internal/syscall/windows/sysdll"
 	"runtime"
 	"sync"
 	"syscall"
 	"unsafe"
+	"x/sys/windows"
 
 	"github.com/leaanthony/winc/w32"
 )
@@ -184,10 +184,17 @@ func (cba *ControlBase) clampSize(width, height int) (int, int) {
 	return width, height
 }
 
+func supportsPerMonitorDPI() bool {
+	shcore := windows.NewLazyDLL("shcore.dll")
+	getDpiForMonitor := shcore.NewProc("GetDpiForMonitor")
+	shcoreErr := getDpiForMonitor.Load()
+	return shcoreErr == nil
+}
+
 func (cba *ControlBase) SetSize(width, height int) {
 	x, y := cba.Pos()
 	width, height = cba.clampSize(width, height)
-	if sysdll.IsSystemDLL("shcore.dll") {
+	if supportsPerMonitorDPI() {
 		width, height = cba.scaleWithWindowDPI(width, height)
 	} else {
 		width, height = cba.scaleWithSystemDPI(width, height)
