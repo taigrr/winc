@@ -11,7 +11,7 @@ import (
 	"sync"
 	"syscall"
 	"unsafe"
-	"x/sys/windows"
+	"golang.org/x/sys/windows"
 
 	"github.com/leaanthony/winc/w32"
 )
