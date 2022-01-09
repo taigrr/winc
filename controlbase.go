@@ -7,6 +7,7 @@ package winc
 
 import (
 	"fmt"
+	"internal/syscall/windows/sysdll"
 	"runtime"
 	"sync"
 	"syscall"
@@ -98,6 +99,11 @@ func (cba *ControlBase) SetHandle(hwnd w32.HWND) {
 	cba.hwnd = hwnd
 }
 
+func (cba *ControlBase) GetSystemDPI() w32.UINT {
+	dpi := w32.GetDpiForSystem()
+	return dpi
+}
+
 func (cba *ControlBase) GetWindowDPI() (w32.UINT, w32.UINT) {
 	monitor := w32.MonitorFromWindow(cba.hwnd, w32.MONITOR_DEFAULTTOPRIMARY)
 	var dpiX, dpiY w32.UINT
@@ -181,8 +187,11 @@ func (cba *ControlBase) clampSize(width, height int) (int, int) {
 func (cba *ControlBase) SetSize(width, height int) {
 	x, y := cba.Pos()
 	width, height = cba.clampSize(width, height)
-	width, height = cba.scaleWithWindowDPI(width, height)
-
+	if sysdll.IsSystemDLL("shcore.dll") {
+		width, height = cba.scaleWithWindowDPI(width, height)
+	} else {
+		width, height = cba.scaleWithSystemDPI(width, height)
+	}
 	w32.MoveWindow(cba.hwnd, x, y, width, height, true)
 }
 
@@ -467,6 +476,17 @@ func (cba *ControlBase) scaleWithWindowDPI(width, height int) (int, int) {
 
 	DPIScaleX := dpix / 96.0
 	DPIScaleY := dpiy / 96.0
+
+	width *= int(DPIScaleX)
+	height *= int(DPIScaleY)
+	return width, height
+}
+
+func (cba *ControlBase) scaleWithSystemDPI(width, height int) (int, int) {
+	dpi := cba.GetSystemDPI()
+
+	DPIScaleX := dpi / 96.0
+	DPIScaleY := dpi / 96.0
 
 	width *= int(DPIScaleX)
 	height *= int(DPIScaleY)
