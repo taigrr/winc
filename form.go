@@ -25,9 +25,6 @@ type Form struct {
 	isFullscreen            bool
 	previousWindowStyle     uint32
 	previousWindowPlacement w32.WINDOWPLACEMENT
-
-	// Set this to hook into NCHITTEST events
-	NCHITTESTCallback func(int32, int32) uintptr
 }
 
 func NewCustomForm(parent Controller, exStyle int, dwStyle uint) *Form {
@@ -263,14 +260,6 @@ func (fm *Form) WndProc(msg uint32, wparam, lparam uintptr) uintptr {
 		return 0
 	case w32.WM_DESTROY:
 		w32.PostQuitMessage(0)
-		return 0
-
-	case w32.WM_NCHITTEST:
-		if fm.NCHITTESTCallback != nil {
-			x := w32.GET_X_LPARAM(lparam)
-			y := w32.GET_Y_LPARAM(lparam)
-			return fm.NCHITTESTCallback(x, y)
-		}
 		return 0
 
 	case w32.WM_SIZE, w32.WM_PAINT:
