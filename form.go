@@ -208,15 +208,15 @@ func (fm *Form) SetIcon(iconType int, icon *Icon) {
 }
 
 func (fm *Form) EnableMaxButton(b bool) {
-	ToggleStyle(fm.hwnd, b, w32.WS_MAXIMIZEBOX)
+	SetStyle(fm.hwnd, b, w32.WS_MAXIMIZEBOX)
 }
 
 func (fm *Form) EnableMinButton(b bool) {
-	ToggleStyle(fm.hwnd, b, w32.WS_MINIMIZEBOX)
+	SetStyle(fm.hwnd, b, w32.WS_MINIMIZEBOX)
 }
 
 func (fm *Form) EnableSizable(b bool) {
-	ToggleStyle(fm.hwnd, b, w32.WS_THICKFRAME)
+	SetStyle(fm.hwnd, b, w32.WS_THICKFRAME)
 }
 
 func (fm *Form) EnableDragMove(_ bool) {

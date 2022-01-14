@@ -91,19 +91,19 @@ func (lv *ListView) setItemState(i int, state, mask uint) {
 }
 
 func (lv *ListView) EnableSingleSelect(enable bool) {
-	ToggleStyle(lv.hwnd, enable, w32.LVS_SINGLESEL)
+	SetStyle(lv.hwnd, enable, w32.LVS_SINGLESEL)
 }
 
 func (lv *ListView) EnableSortHeader(enable bool) {
-	ToggleStyle(lv.hwnd, enable, w32.LVS_NOSORTHEADER)
+	SetStyle(lv.hwnd, enable, w32.LVS_NOSORTHEADER)
 }
 
 func (lv *ListView) EnableSortAscending(enable bool) {
-	ToggleStyle(lv.hwnd, enable, w32.LVS_SORTASCENDING)
+	SetStyle(lv.hwnd, enable, w32.LVS_SORTASCENDING)
 }
 
 func (lv *ListView) EnableEditLabels(enable bool) {
-	ToggleStyle(lv.hwnd, enable, w32.LVS_EDITLABELS)
+	SetStyle(lv.hwnd, enable, w32.LVS_EDITLABELS)
 }
 
 func (lv *ListView) EnableFullRowSelect(enable bool) {
