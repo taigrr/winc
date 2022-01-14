@@ -23,25 +23,25 @@ func internalTrackMouseEvent(hwnd w32.HWND) {
 	w32.TrackMouseEvent(&tme)
 }
 
-func ToggleStyle(hwnd w32.HWND, b bool, style int) {
+func SetStyle(hwnd w32.HWND, b bool, style int) {
 	originalStyle := int(w32.GetWindowLongPtr(hwnd, w32.GWL_STYLE))
 	if originalStyle != 0 {
 		if b {
 			originalStyle |= style
 		} else {
-			originalStyle ^= style
+			originalStyle &^= style
 		}
 		w32.SetWindowLongPtr(hwnd, w32.GWL_STYLE, uintptr(originalStyle))
 	}
 }
 
-func ToggleExStyle(hwnd w32.HWND, b bool, style int) {
+func SetExStyle(hwnd w32.HWND, b bool, style int) {
 	originalStyle := int(w32.GetWindowLongPtr(hwnd, w32.GWL_EXSTYLE))
 	if originalStyle != 0 {
 		if b {
 			originalStyle |= style
 		} else {
-			originalStyle ^= style
+			originalStyle &^= style
 		}
 		w32.SetWindowLongPtr(hwnd, w32.GWL_EXSTYLE, uintptr(originalStyle))
 	}
