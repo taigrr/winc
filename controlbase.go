@@ -11,6 +11,7 @@ import (
 	"sync"
 	"syscall"
 	"unsafe"
+
 	"golang.org/x/sys/windows"
 
 	"github.com/leaanthony/winc/w32"
@@ -195,7 +196,7 @@ func (cba *ControlBase) clampSize(width, height int) (int, int) {
 func supportsPerMonitorDPI() bool {
 	shcore := windows.NewLazyDLL("shcore.dll")
 	getDpiForMonitor := shcore.NewProc("GetDpiForMonitor")
-	shcoreErr := getDpiForMonitor.Load()
+	shcoreErr := getDpiForMonitor.Finc()
 	return shcoreErr == nil
 }
 
