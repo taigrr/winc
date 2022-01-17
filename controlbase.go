@@ -99,9 +99,17 @@ func (cba *ControlBase) SetHandle(hwnd w32.HWND) {
 	cba.hwnd = hwnd
 }
 
-func (cba *ControlBase) GetSystemDPI() w32.UINT {
-	dpi := w32.GetDpiForSystem()
-	return dpi
+func (cba *ControlBase) GetSystemXYDPI() (float32, float32) {
+	screen := w32.GetDC(0)
+	x := w32.GetDeviceCaps(screen, w32.LOGPIXELSX)
+	y := w32.GetDeviceCaps(screen, w32.LOGPIXELSY)
+	w32.ReleaseDC(0, screen)
+	return float32(x), float32(y)
+}
+
+func (cba *ControlBase) GetDesktopDPI() (float32, float32) {
+	var floatx, floaty float32
+	return floatx, floaty
 }
 
 func (cba *ControlBase) GetWindowDPI() (w32.UINT, w32.UINT) {
@@ -490,10 +498,10 @@ func (cba *ControlBase) scaleWithWindowDPI(width, height int) (int, int) {
 }
 
 func (cba *ControlBase) scaleWithSystemDPI(width, height int) (int, int) {
-	dpi := cba.GetSystemDPI()
+	dpix, dpiy := cba.GetSystemXYDPI()
 
-	DPIScaleX := dpi / 96.0
-	DPIScaleY := dpi / 96.0
+	DPIScaleX := dpix / 96.0
+	DPIScaleY := dpiy / 96.0
 
 	width *= int(DPIScaleX)
 	height *= int(DPIScaleY)
