@@ -100,17 +100,12 @@ func (cba *ControlBase) SetHandle(hwnd w32.HWND) {
 	cba.hwnd = hwnd
 }
 
-func (cba *ControlBase) GetSystemXYDPI() (float32, float32) {
+func (cba *ControlBase) GetSystemXYDPI() (w32.UINT, w32.UINT) {
 	screen := w32.GetDC(0)
 	x := w32.GetDeviceCaps(screen, w32.LOGPIXELSX)
 	y := w32.GetDeviceCaps(screen, w32.LOGPIXELSY)
 	w32.ReleaseDC(0, screen)
-	return float32(x), float32(y)
-}
-
-func (cba *ControlBase) GetDesktopDPI() (float32, float32) {
-	var floatx, floaty float32
-	return floatx, floaty
+	return w32.UINT(x), w32.UINT(y)
 }
 
 func (cba *ControlBase) GetWindowDPI() (w32.UINT, w32.UINT) {
@@ -203,11 +198,7 @@ func supportsPerMonitorDPI() bool {
 func (cba *ControlBase) SetSize(width, height int) {
 	x, y := cba.Pos()
 	width, height = cba.clampSize(width, height)
-	//if supportsPerMonitorDPI() {
-	//	width, height = cba.scaleWithWindowDPI(width, height)
-	//} else {
-	width, height = cba.scaleWithSystemDPI(width, height)
-	//}
+	width, height = cba.scaleWithWindowDPI(width, height)
 	w32.MoveWindow(cba.hwnd, x, y, width, height, true)
 }
 
@@ -488,19 +479,12 @@ func (cba *ControlBase) OnKeyUp() *EventManager {
 }
 
 func (cba *ControlBase) scaleWithWindowDPI(width, height int) (int, int) {
-	dpix, dpiy := cba.GetWindowDPI()
-
-	DPIScaleX := dpix / 96.0
-	DPIScaleY := dpiy / 96.0
-
-	width *= int(DPIScaleX)
-	height *= int(DPIScaleY)
-	return width, height
-}
-
-func (cba *ControlBase) scaleWithSystemDPI(width, height int) (int, int) {
-	dpix, dpiy := cba.GetSystemXYDPI()
-
+	var dpix, dpiy w32.UINT
+	if supportsPerMonitorDPI() {
+		dpix, dpiy = cba.GetWindowDPI()
+	} else {
+		dpix, dpiy = cba.GetSystemXYDPI()
+	}
 	DPIScaleX := dpix / 96.0
 	DPIScaleY := dpiy / 96.0
 
