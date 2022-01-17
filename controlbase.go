@@ -203,11 +203,11 @@ func supportsPerMonitorDPI() bool {
 func (cba *ControlBase) SetSize(width, height int) {
 	x, y := cba.Pos()
 	width, height = cba.clampSize(width, height)
-	if supportsPerMonitorDPI() {
-		width, height = cba.scaleWithWindowDPI(width, height)
-	} else {
-		width, height = cba.scaleWithSystemDPI(width, height)
-	}
+	//if supportsPerMonitorDPI() {
+	//	width, height = cba.scaleWithWindowDPI(width, height)
+	//} else {
+	width, height = cba.scaleWithSystemDPI(width, height)
+	//}
 	w32.MoveWindow(cba.hwnd, x, y, width, height, true)
 }
 
